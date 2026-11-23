@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  VALIDAR: este arquivo é só a casca. Antes do primeiro teste no jogo:
+    1. No Sims 4 Studio (Windows), clone uma interação social amigável simples
+       da EA (Tools > Extract Tuning) e cole aqui o CORPO dela (os <T>/<L>/<U>).
+    2. Confira c= e m= abaixo com o que veio do clone.
+    3. Mantenha n=, o s= com placeholder de id e o display_name com placeholder de string.
+    4. Remova este comentário (o build de release bloqueia enquanto houver VALIDAR).
+  Não comitar texto/strings da EA além do necessário para o tuning funcionar.
+-->
+<I c="SocialMixerInteraction" i="interaction" m="interactions.social.social_mixer_interaction" n="cristhian_NovelaFofoca_Mixer" s="{{id}}">
+  <T n="display_name">{{str:interaction_name}}</T>
+</I>

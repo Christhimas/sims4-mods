@@ -1,0 +1,10 @@
+build/
+dist/
+__pycache__/
+*.pyc
+*.log
+.venv/
+.DS_Store
+
+# Referência descompilada da EA: só local, NUNCA comitar.
+reference/

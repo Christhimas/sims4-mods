@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Tudo roda no Python do jogo (3.7): ferramentas são compatíveis e os .pyc
+    # saem com o magic certo.
+    container: python:3.7-slim
+    env:
+      SIMS4_PYTHON: python3.7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Testes
+        run: python -m unittest discover -s tests -t . -v
+      - name: Build de todos os mods
+        shell: bash
+        run: |
+          for m in mods/*/; do
+            mod=$(basename "$m")
+            if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+              python -m sims4pack build "$mod" --release
+            else
+              python -m sims4pack build "$mod"
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: builds
+          path: |
+            build/*/
+            !build/_stage/
+            dist/
+          if-no-files-found: ignore

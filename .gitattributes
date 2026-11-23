@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.package binary
+*.ts4script binary
+*.png binary
+*.dds binary
+*.blend binary
