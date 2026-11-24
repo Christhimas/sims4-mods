@@ -45,8 +45,39 @@ def cmd_lastexc(args) -> int:
         print(f"Nenhum lastException*.txt ou .log em {root}")
         return 0
     for f in files[: args.n]:
+        text = f.read_text(encoding="utf-8", errors="replace")
+        if f.suffix == ".log" and not args.all:
+            # Só a última sessão do jogo (a partir do último cabeçalho [SESSAO] ====).
+            idx = text.rfind("[SESSAO] ====")
+            if idx != -1:
+                text = text[text.rfind("\n", 0, idx) + 1:]
         print(f"===== {f}")
-        print(f.read_text(encoding="utf-8", errors="replace")[-args.chars:])
+        print(text[-args.chars:])
+    return 0
+
+
+def cmd_ea_tuning(args) -> int:
+    from .ea_reference import CombinedTuning, default_game_dir
+
+    game = Path(args.game) if args.game else default_game_dir()
+    if game is None:
+        raise b.BuildError("Instalação do jogo não encontrada; use --game ou SIMS4_GAME_DIR")
+    ct = CombinedTuning(game)
+    if args.query.isdigit():
+        found = [i for i in [ct.by_id(int(args.query))] if i is not None]
+    else:
+        found = list(ct.find(args.query, args.cls))
+    if not args.save:
+        for inst in found[: args.limit]:
+            print(f"{inst.get('s'):>20}  {inst.get('c'):<28} {inst.get('n')}")
+        print(f"{len(found)} encontrado(s)")
+        return 0
+    out = b.REPO_ROOT / "reference" / "tuning"
+    out.mkdir(parents=True, exist_ok=True)
+    for inst in found[: args.limit]:
+        path = out / f"{inst.get('n')}.xml"
+        path.write_text(ct.to_xml(inst), encoding="utf-8")
+        print(path)
     return 0
 
 
@@ -68,8 +99,17 @@ def main(argv=None) -> int:
 
     pl = sub.add_parser("lastexc", help="mostra lastException*.txt e logs dos mods")
     pl.add_argument("-n", type=int, default=3)
-    pl.add_argument("--chars", type=int, default=4000)
+    pl.add_argument("--chars", type=int, default=8000)
+    pl.add_argument("--all", action="store_true", help="log inteiro, não só a última sessão")
     pl.set_defaults(func=cmd_lastexc)
+
+    pe = sub.add_parser("ea-tuning", help="busca/extrai tuning da EA para reference/ (só leitura)")
+    pe.add_argument("query", help="ID numérico ou regex sobre o nome (n=)")
+    pe.add_argument("--class", dest="cls", help="filtra pela classe (c=), ex.: SocialMixerInteraction")
+    pe.add_argument("--save", action="store_true", help="grava XML em reference/tuning/")
+    pe.add_argument("--limit", type=int, default=50)
+    pe.add_argument("--game", help="pasta de instalação (padrão: SIMS4_GAME_DIR ou detecção)")
+    pe.set_defaults(func=cmd_ea_tuning)
 
     args = p.parse_args(argv)
     try:

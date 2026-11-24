@@ -43,7 +43,13 @@ python -m sims4pack build novela_fofoca --release    # checagens estritas + dist
 python -m sims4pack build novela_fofoca --no-scripts # só .package (dev)
 python -m sims4pack inspect build/<pacote>/<pacote>.package
 python -m sims4pack lastexc                          # lastException*.txt + logs dos mods
+python -m sims4pack ea-tuning "friendly" --class SocialMixerInteraction   # busca tuning EA
+python -m sims4pack ea-tuning 25584 --save           # extrai XML para reference/tuning/
 ```
+
+`ea-tuning` lê o CombinedTuning do jogo (somente leitura, detecta a instalação ou usa
+`SIMS4_GAME_DIR`) e substitui o Sims 4 Studio para consultar/clonar tuning do jogo base.
+Limitação: só o FullBuild (XML); ajustes de patches recentes no DeltaBuild binário não aparecem.
 
 A pasta Mods padrão é `~/Documents/Electronic Arts/The Sims 4/Mods`; mude com
 `SIMS4_MODS_DIR` ou `--mods-dir`.

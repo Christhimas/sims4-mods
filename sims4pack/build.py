@@ -8,6 +8,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -121,6 +122,21 @@ def find_game_python(version: str) -> List[str]:
     )
 
 
+def git_describe() -> str:
+    """Commit curto + '-sujo' se houver mudanças; 'sem-git' se não der para saber."""
+    git = os.environ.get("GIT") or shutil.which("git")
+    if not git:
+        return "sem-git"
+    try:
+        run = lambda *a: subprocess.run([git, *a], cwd=REPO_ROOT, capture_output=True,
+                                        text=True, check=True).stdout.strip()
+        commit = run("rev-parse", "--short", "HEAD")
+        dirty = run("status", "--porcelain", "--untracked-files=no")
+        return commit + ("-sujo" if dirty else "")
+    except (OSError, subprocess.CalledProcessError):
+        return "sem-git"
+
+
 def compile_scripts(mod: Mod, ids: Dict[str, int], hashes: Dict[str, int], out: Path) -> None:
     src = mod.path / "scripts"
     if not mod.script_package or not (src / mod.script_package).is_dir():
@@ -140,6 +156,8 @@ def compile_scripts(mod: Mod, ids: Dict[str, int], hashes: Dict[str, int], out: 
     generated.write_text(
         "# Gerado pelo build. Não editar.\n"
         f"MOD_ID = {mod.id!r}\nVERSION = {mod.version!r}\n"
+        f"BUILD_TIME = {time.strftime('%Y-%m-%d %H:%M:%S')!r}\n"
+        f"GIT_COMMIT = {git_describe()!r}\n"
         f"TUNING_IDS = {json.dumps(ids, indent=4, sort_keys=True)}\n"
         f"STRING_KEYS = {json.dumps(hashes, indent=4, sort_keys=True)}\n",
         encoding="utf-8",
@@ -209,9 +227,14 @@ def install(mod: Mod, mods_dir: Path) -> Path:
     if not mods_dir.is_dir():
         raise BuildError(f"Pasta Mods não existe: {mods_dir} (defina SIMS4_MODS_DIR)")
     target = mods_dir / mod.package_name
-    if target.exists():
-        shutil.rmtree(target)
-    shutil.copytree(mod.build_dir, target)
+    target.mkdir(exist_ok=True)
+    built = {f.name for f in mod.build_dir.iterdir()}
+    for old in target.iterdir():
+        # Preserva logs de testes anteriores; remove o resto que não veio do build.
+        if old.name not in built and not old.name.endswith((".log", ".log.old")):
+            shutil.rmtree(old) if old.is_dir() else old.unlink()
+    for f in mod.build_dir.iterdir():
+        shutil.copy2(f, target / f.name)
     return target
 
 

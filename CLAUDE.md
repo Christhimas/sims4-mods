@@ -10,4 +10,8 @@
 - Toda string visível vai para `strings/en_us.json` + `strings/pt_br.json` via
   `{{str:chave}}`; nunca texto fixo no tuning.
 - Rodar `python -m unittest discover -s tests -t .` após mudar `sims4pack/`.
-- Depois de testar no jogo: `python -m sims4pack lastexc`.
+- Todo teste no jogo precisa deixar log: ao criar/alterar algo testável, instrumente
+  com `log()`/`diag.trace_affordance()` (nível TESTE) antes de pedir o teste. Cada
+  carga do jogo abre uma sessão `[SESSAO]` com versão, build e commit.
+- Depois de testar no jogo: `python -m sims4pack lastexc` (mostra só a última sessão
+  do log + lastException*.txt) e analise antes de concluir.

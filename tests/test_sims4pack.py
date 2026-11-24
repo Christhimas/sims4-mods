@@ -84,6 +84,20 @@ class ExampleModTest(unittest.TestCase):
         en_pt = json.loads((mod.path / "strings" / "pt_br.json").read_text(encoding="utf-8"))
         self.assertEqual(sorted(stbl.parse_stbl(pt).values()), sorted(en_pt.values()))
 
+    def test_install_keeps_logs(self):
+        from sims4pack import build as b
+        mod = b.build("novela_fofoca", scripts=False)
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d) / mod.package_name
+            target.mkdir()
+            (target / "teste.log").write_text("antigo", encoding="utf-8")
+            (target / "lixo.package").write_text("x", encoding="utf-8")
+            b.install(mod, Path(d))
+            names = sorted(p.name for p in target.iterdir())
+            self.assertIn("teste.log", names)
+            self.assertNotIn("lixo.package", names)
+            self.assertIn(f"{mod.package_name}.package", names)
+
 
 if __name__ == "__main__":
     unittest.main()
