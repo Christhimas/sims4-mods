@@ -14,6 +14,7 @@ Referências conferidas no jogo 1.129 (só IDs/nomes, nada copiado da EA):
 import services
 import sims4.resources
 
+from . import react
 from .log import log, log_exception
 
 TAG_FLIRT = "Social_Flirty"
@@ -22,9 +23,6 @@ TAG_WOOHOO = "Social_Woohoo"
 ROMANCE_TAGS = frozenset((TAG_FLIRT, TAG_KISS, TAG_WOOHOO))
 
 COMMITTED_BIT_IDS = {15825: "namorando", 15816: "noivo(a)", 15822: "casado(a)"}
-
-# Raio (metros) para listar possíveis testemunhas no M1. No M2 vira linha de visão.
-WITNESS_RADIUS = 12.0
 
 # Configurável por comando (babado.flerte).
 settings = {"flerte_conta": True}
@@ -120,38 +118,30 @@ def expectations(info):
         tracker = info.trait_tracker
         for exp_type, data in mapping.items():
             name = getattr(exp_type, "name", str(exp_type))
+            # Nome do traço no log para entender a semântica (yes/no) no teste.
             if data.yes_trait is not None and tracker.has_trait(data.yes_trait):
-                out[name] = "sim"
+                out[name] = "sim:" + getattr(data.yes_trait, "__name__", "?")
             elif data.no_trait is not None and tracker.has_trait(data.no_trait):
-                out[name] = "nao"
+                out[name] = "nao:" + getattr(data.no_trait, "__name__", "?")
     except Exception:
         log_exception("expectations")
     return out
 
 
+def partner_accepts(pinfo, level):
+    """True se o parceiro NÃO espera exclusividade para esse nível (relação aberta).
+
+    Confirmado no jogo: traços *_Exclusivity_Yes = espera exclusividade; *_No = aceita.
+    Sem Lovestruck (ou sem traço definido) => espera exclusividade.
+    """
+    if pinfo is None:
+        return False
+    kind = "WOOHOO" if level == "ESCANDALO" else "PHYSICAL"
+    return expectations(pinfo).get(kind, "").startswith("nao:")
+
+
 def _sim_info_by_id(sim_id):
     return services.sim_info_manager().get(sim_id)
-
-
-def nearby_sims(center, exclude_ids):
-    """Sims instanciados perto do ator (mesmo andar), com distância em metros."""
-    out = []
-    try:
-        pos = center.position
-        level = getattr(center, "level", None)
-        for sim in services.sim_info_manager().instanced_sims_gen():
-            info = sim.sim_info
-            if info.sim_id in exclude_ids:
-                continue
-            if level is not None and getattr(sim, "level", level) != level:
-                continue
-            p = sim.position
-            dist = ((p.x - pos.x) ** 2 + (p.z - pos.z) ** 2) ** 0.5
-            if dist <= WITNESS_RADIUS:
-                out.append((sim, dist))
-    except Exception:
-        log_exception("nearby_sims")
-    return sorted(out, key=lambda x: x[1])
 
 
 # ---------------------------------------------------------------- avaliação
@@ -191,16 +181,20 @@ def evaluate(interaction):
 
     # Os dois lados podem estar traindo: ator e alvo.
     cheaters = []
+    open_relationship = False
     for who, other in ((actor_info, target_info), (target_info, actor_info)):
         partners = [(pid, label) for pid, label in committed_partners(who) if pid != other.sim_id]
-        if partners:
-            cheaters.append((who, other, partners))
+        exclusive = [(pid, label) for pid, label in partners
+                     if not partner_accepts(_sim_info_by_id(pid), level)]
+        open_relationship = open_relationship or len(exclusive) < len(partners)
+        if exclusive:
+            cheaters.append((who, other, exclusive))
     if not cheaters:
-        return ignore("sem_compromisso_com_terceiros")
+        return ignore("relacao_aberta" if open_relationship else "sem_compromisso_com_terceiros")
 
     stats["traicoes"] += 1
     exclude = {actor_info.sim_id, target_info.sim_id}
-    near = nearby_sims(actor, exclude)
+    witnesses = react.find_witnesses(actor, exclude, _is_adult_enough)
     for who, other, partners in cheaters:
         partner_desc = []
         partner_ids = set()
@@ -210,13 +204,24 @@ def evaluate(interaction):
             partner_desc.append("{} [{}{}]".format(
                 _name(pinfo), label,
                 " expectativas={}".format(expectations(pinfo)) if pinfo else ""))
-        witnesses = []
-        for sim, dist in near:
-            role = "PARCEIRO_TRAIDO" if sim.sim_info.sim_id in partner_ids else (
-                "testemunha" if _is_adult_enough(sim.sim_info) else "crianca/adolescente")
-            witnesses.append("{} {:.1f}m {}".format(_name(sim), dist, role))
-        log("TRAICAO nivel={} traidor={} com={} parceiro(s)={} perto={} interacao={}".format(
-            level, _name(who), _name(other), partner_desc, witnesses or "[]", affordance.__name__), "TESTE")
+        log("TRAICAO nivel={} traidor={} com={} parceiro(s)={} testemunhas={} interacao={}".format(
+            level, _name(who), _name(other), partner_desc, len(witnesses), affordance.__name__), "TESTE")
+
+        cheater_sim = who.get_sim_instance()
+        results = []
+        for sim, dist, same_room in witnesses:
+            if sim.sim_info.sim_id in partner_ids:
+                # O ciúme do parceiro traído é do jogo base (broadcaster_Jealousy).
+                results.append("{} {:.1f}m PARCEIRO_TRAIDO(jogo_base)".format(_name(sim), dist))
+                continue
+            if cheater_sim is None:
+                results.append("{} traidor_nao_instanciado".format(_name(sim)))
+                continue
+            try:
+                results.append(react.react(sim, dist, same_room, cheater_sim, partner_ids, level, _name))
+            except Exception:
+                log_exception("react {}".format(_name(sim)))
+        log("TESTEMUNHAS traidor={} -> {}".format(_name(who), results or "[]"), "TESTE")
 
 
 # ---------------------------------------------------------------- ganchos
@@ -259,3 +264,4 @@ def install_hooks():
                {getattr(b, "guid64", None) for b in _get_committed_bits()}]
     if missing:
         log("Bits de compromisso ausentes: {}".format(missing), "AVISO")
+    react.check_tuning()

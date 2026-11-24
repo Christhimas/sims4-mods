@@ -40,7 +40,7 @@ def _cmd_info(_connection=None):
     lines = [
         _header(),
         "Python {}".format(sys.version.split()[0]),
-        "Contadores: {}".format(detect.stats),
+        "Contadores: {} {}".format(detect.stats, detect.react.stats),
         "Config: {}".format(detect.settings),
         "Log: {}".format(LOG_PATH),
     ]

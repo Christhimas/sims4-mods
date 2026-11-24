@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Babado: reação da testemunha. Estrutura baseada em reaction_AdultFight (EA, 99260).
+     O script aplica o buff ANTES de empurrar esta interação; o resultado escolhe a
+     animação pelo buff que a testemunha tem. Alvo (Object) = Sim que traiu. -->
+<I c="SuperInteraction" i="interaction" m="interactions.base.super_interaction" n="cristhian_Babado_Reacao" s="{{id}}">
+  <L n="_constraints">
+    <V t="cone">
+      <U n="cone">
+        <T n="angle">175</T>
+        <T n="ideal_radius_max">0.75</T>
+        <T n="max_radius">6</T>
+        <T n="min_radius">2</T>
+      </U>
+    </V>
+    <V t="facing" />
+  </L>
+  <E n="_constraints_actor">Object</E>
+  <V t="participant" n="_icon">
+    <U n="participant">
+      <L n="participant_type">
+        <E>Actor</E>
+      </L>
+    </U>
+  </V>
+  <T n="acquire_targets_as_resource">False</T>
+  <T n="allow_autonomous">False</T>
+  <T n="attention_cost">0.5</T>
+  <V n="basic_content" t="flexible_length">
+    <U n="flexible_length">
+      <L n="conditional_actions">
+        <V t="literal">
+          <U n="literal">
+            <L n="conditions">
+              <V t="time_based">
+                <U n="time_based">
+                  <T n="max_time">1</T>
+                </U>
+              </V>
+            </L>
+            <E n="interaction_action">EXIT_NATURALLY</E>
+          </U>
+        </V>
+      </L>
+    </U>
+  </V>
+  <L n="basic_liabilities">
+    <V t="timeout">
+      <U n="timeout">
+        <T n="timeout">20</T>
+      </U>
+    </V>
+  </L>
+  <V t="disabled" n="basic_reserve_object" />
+  <T n="disable_autonomous_multitasking_if_user_directed">False</T>
+  <T n="display_name">{{str:reacao_nome}}</T>
+  <L n="interaction_category_tags">
+    <E>Interaction_Super</E>
+    <E>Interaction_All</E>
+  </L>
+  <V n="outcome" t="test_based">
+    <U n="test_based">
+      <L n="fallback_outcomes">
+        <U>
+          <U n="outcome">
+            <V n="animation_ref" t="enabled">
+              <U n="enabled">
+                <T n="factory">28356</T>
+              </U>
+            </V>
+          </U>
+          <U n="weight">
+            <T n="base_value">1</T>
+          </U>
+        </U>
+      </L>
+      <L n="tested_outcomes">
+          <U>
+            <L n="potential_outcomes">
+              <U>
+                <U n="outcome">
+                  <V n="animation_ref" t="enabled">
+                    <U n="enabled">
+                      <T n="factory">28339</T>
+                    </U>
+                  </V>
+                </U>
+                <U n="weight">
+                  <T n="base_value">1</T>
+                </U>
+              </U>
+            </L>
+            <L n="tests">
+              <L>
+                <V t="buff">
+                  <U n="buff">
+                    <L n="whitelist">
+                      <T>{{tuning:cristhian_Babado_Buff_Revoltado}}</T>
+                    </L>
+                  </U>
+                </V>
+              </L>
+            </L>
+          </U>
+          <U>
+            <L n="potential_outcomes">
+              <U>
+                <U n="outcome">
+                  <V n="animation_ref" t="enabled">
+                    <U n="enabled">
+                      <T n="factory">28388</T>
+                    </U>
+                  </V>
+                </U>
+                <U n="weight">
+                  <T n="base_value">1</T>
+                </U>
+              </U>
+            </L>
+            <L n="tests">
+              <L>
+                <V t="buff">
+                  <U n="buff">
+                    <L n="whitelist">
+                      <T>{{tuning:cristhian_Babado_Buff_Decepcionado}}</T>
+                    </L>
+                  </U>
+                </V>
+              </L>
+            </L>
+          </U>
+          <U>
+            <L n="potential_outcomes">
+              <U>
+                <U n="outcome">
+                  <V n="animation_ref" t="enabled">
+                    <U n="enabled">
+                      <T n="factory">28391</T>
+                    </U>
+                  </V>
+                </U>
+                <U n="weight">
+                  <T n="base_value">1</T>
+                </U>
+              </U>
+            </L>
+            <L n="tests">
+              <L>
+                <V t="buff">
+                  <U n="buff">
+                    <L n="whitelist">
+                      <T>{{tuning:cristhian_Babado_Buff_QueBabado}}</T>
+                    </L>
+                  </U>
+                </V>
+              </L>
+            </L>
+          </U>
+          <U>
+            <L n="potential_outcomes">
+              <U>
+                <U n="outcome">
+                  <V n="animation_ref" t="enabled">
+                    <U n="enabled">
+                      <T n="factory">28379</T>
+                    </U>
+                  </V>
+                </U>
+                <U n="weight">
+                  <T n="base_value">1</T>
+                </U>
+              </U>
+            </L>
+            <L n="tests">
+              <L>
+                <V t="buff">
+                  <U n="buff">
+                    <L n="whitelist">
+                      <T>{{tuning:cristhian_Babado_Buff_Indignado}}</T>
+                    </L>
+                  </U>
+                </V>
+              </L>
+            </L>
+          </U>
+          <U>
+            <L n="potential_outcomes">
+              <U>
+                <U n="outcome">
+                  <V n="animation_ref" t="enabled">
+                    <U n="enabled">
+                      <T n="factory">28377</T>
+                    </U>
+                  </V>
+                </U>
+                <U n="weight">
+                  <T n="base_value">1</T>
+                </U>
+              </U>
+            </L>
+            <L n="tests">
+              <L>
+                <V t="buff">
+                  <U n="buff">
+                    <L n="whitelist">
+                      <T>{{tuning:cristhian_Babado_Buff_Rindo}}</T>
+                    </L>
+                  </U>
+                </V>
+              </L>
+            </L>
+          </U>
+          <U>
+            <L n="potential_outcomes">
+              <U>
+                <U n="outcome">
+                  <V n="animation_ref" t="enabled">
+                    <U n="enabled">
+                      <T n="factory">28356</T>
+                    </U>
+                  </V>
+                </U>
+                <U n="weight">
+                  <T n="base_value">1</T>
+                </U>
+              </U>
+            </L>
+            <L n="tests">
+              <L>
+                <V t="buff">
+                  <U n="buff">
+                    <L n="whitelist">
+                      <T>{{tuning:cristhian_Babado_Buff_Constrangido}}</T>
+                    </L>
+                  </U>
+                </V>
+              </L>
+            </L>
+          </U>
+      </L>
+    </U>
+  </V>
+  <E n="scoring_priority">NORMAL</E>
+  <T n="subaction_selection_weight">1</T>
+  <E n="target_type">OBJECT</E>
+  <L n="test_globals">
+    <V t="sim_info">
+      <U n="sim_info">
+        <V t="specified" n="ages">
+          <L n="specified">
+            <E>YOUNGADULT</E>
+            <E>ADULT</E>
+            <E>ELDER</E>
+          </L>
+        </V>
+        <E n="who">Actor</E>
+      </U>
+    </V>
+  </L>
+  <T n="time_overhead">30</T>
+</I>

@@ -1,1 +1,15 @@
-{}
+{
+  "reacao_nome": "React to Cheating",
+  "buff_revoltado": "Outraged by Betrayal",
+  "buff_revoltado_desc": "Saw someone cheat right in front of them and is boiling with anger.",
+  "buff_decepcionado": "Disappointed in Love",
+  "buff_decepcionado_desc": "Watching someone cheat has shaken this Sim's faith in love.",
+  "buff_que_babado": "Juicy Gossip!",
+  "buff_que_babado_desc": "Witnessed some cheating and can't wait to tell everyone.",
+  "buff_indignado": "Indignant",
+  "buff_indignado_desc": "How could anyone cheat like that, in front of everyone?",
+  "buff_rindo": "Cracking Up",
+  "buff_rindo_desc": "The cheating was so brazen this Sim couldn't stop laughing.",
+  "buff_constrangido": "Awkward",
+  "buff_constrangido_desc": "Witnessed some cheating and doesn't know where to look."
+}

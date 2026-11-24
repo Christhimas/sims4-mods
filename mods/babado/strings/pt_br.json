@@ -1,1 +1,15 @@
-{}
+{
+  "reacao_nome": "Reagir à Traição",
+  "buff_revoltado": "Revoltado com a Traição",
+  "buff_revoltado_desc": "Viu uma traição acontecer bem na sua frente e está fervendo de raiva.",
+  "buff_decepcionado": "Decepcionado com o Amor",
+  "buff_decepcionado_desc": "Ver alguém trair deixou este Sim desacreditado do amor.",
+  "buff_que_babado": "Que Babado!",
+  "buff_que_babado_desc": "Presenciou uma traição e mal pode esperar para contar para todo mundo.",
+  "buff_indignado": "Indignado",
+  "buff_indignado_desc": "Onde já se viu trair assim, na frente de todo mundo?",
+  "buff_rindo": "Morrendo de Rir",
+  "buff_rindo_desc": "A traição foi tão descarada que este Sim não segurou o riso.",
+  "buff_constrangido": "Constrangido",
+  "buff_constrangido_desc": "Presenciou uma traição e não sabe onde enfiar a cara."
+}
