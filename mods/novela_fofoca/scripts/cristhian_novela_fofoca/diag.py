@@ -7,7 +7,12 @@ Métodos conferidos em interactions/base/interaction.py (jogo 1.129):
   _exited_pipeline(self, *args, **kwargs)
 """
 
+import time
+
 from .log import log, log_exception
+
+# id da interação -> horário (relógio real) em que iniciou, para medir a duração.
+_started = {}
 
 
 def _sim_name(sim):
@@ -55,8 +60,16 @@ def _wrap(affordance, method_name, label, after=None):
     return True
 
 
+def _mark_start(interaction):
+    _started[getattr(interaction, "id", None)] = time.monotonic()
+    return ""
+
+
 def _exit_details(interaction):
     parts = []
+    start = _started.pop(getattr(interaction, "id", None), None)
+    parts.append("duracao_real_s={}".format(
+        "{:.1f}".format(time.monotonic() - start) if start is not None else "nao_iniciou"))
     for attr in ("global_outcome_result", "finishing_type"):
         try:
             value = getattr(interaction, attr)
@@ -73,7 +86,7 @@ def _exit_details(interaction):
 def trace_affordance(affordance):
     ok = all([
         _wrap(affordance, "on_added_to_queue", "NA_FILA"),
-        _wrap(affordance, "_trigger_interaction_start_event", "INICIOU"),
+        _wrap(affordance, "_trigger_interaction_start_event", "INICIOU", after=_mark_start),
         _wrap(affordance, "_exited_pipeline", "TERMINOU", after=_exit_details),
     ])
     log("Rastreamento {} em {}".format("ativo" if ok else "PARCIAL", affordance.__name__))
